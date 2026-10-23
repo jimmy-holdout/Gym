@@ -413,7 +413,7 @@ async def test_the_episodes_of_a_protocol_without_boundaries_are_restarts(record
     started, release = asyncio.Event(), asyncio.Event()
 
     class _Blocking(_EnvironmentServer):
-        checkpoint_boundaries = records_boundaries
+        checkpoint_mode = "exported" if records_boundaries else "restart_only"
 
         async def run(self, request: _Request, cleanup: CleanupContext) -> _Response:
             started.set()
@@ -443,7 +443,7 @@ async def test_a_refused_duplicate_run_leaves_the_live_episode_tracked() -> None
     started, release = asyncio.Event(), asyncio.Event()
 
     class _Blocking(_EnvironmentServer):
-        checkpoint_boundaries = True
+        checkpoint_mode = "exported"
 
         async def run(self, request: _Request, cleanup: CleanupContext) -> _Response:
             started.set()
@@ -470,7 +470,7 @@ async def test_an_episode_is_untracked_even_if_its_cleanup_is_cancelled() -> Non
     from nemo_gym._checkpoint.environment import EnvironmentParticipant
 
     class _CancelledCleanup(_EnvironmentServer):
-        checkpoint_boundaries = True
+        checkpoint_mode = "exported"
 
         async def run(self, request: _Request, cleanup: CleanupContext) -> _Response:
             async def cancelled() -> None:
